@@ -37,30 +37,28 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def hits_algorithm(adjacency_matrix, max_iterations=100, tol=1.0e-6):
-    num_nodes = len(adjacency_matrix)
-    authority_scores = np.ones(num_nodes)
-    hub_scores = np.ones(num_nodes)
+    num_nodes=len(adjacency_matrix)
+    authority_scores=np.ones(num_nodes)
+    hub_scores=np.ones(num_nodes)
 
     for _ in range(max_iterations):
-        old_authority_scores = authority_scores.copy()
-        old_hub_scores = hub_scores.copy()
 
-        authority_scores = np.dot(adjacency_matrix.T, hub_scores)
-        hub_scores = np.dot(adjacency_matrix, authority_scores)
+        new_authority_scores=np.dot(adjacency_matrix.T,hub_scores)
+        new_authority_scores/=np.sum(new_authority_scores)
 
-        authority_norm = np.linalg.norm(authority_scores)
-        hub_norm = np.linalg.norm(hub_scores)
-        authority_scores /= authority_norm if authority_norm != 0 else 1
-        hub_scores /= hub_norm if hub_norm != 0 else 1
+        new_hub_scores=np.dot(adjacency_matrix,authority_scores)
+        new_hub_scores/=np.sum(new_hub_scores)
 
-        authority_diff = np.linalg.norm(authority_scores - old_authority_scores)
-        hub_diff = np.linalg.norm(hub_scores - old_hub_scores)
+        authority_diff=np.sum(np.abs(new_authority_scores-authority_scores))
+        hub_diff=np.sum(np.abs(new_hub_scores-hub_scores))
 
-        if authority_diff < tol and hub_diff < tol:
+        authority_scores=new_authority_scores
+        hub_scores=new_hub_scores
+
+        if authority_diff<tol and hub_diff<tol:
             break
 
-    return authority_scores, hub_scores
-
+    return authority_scores,hub_scores
 adj_matrix = np.array([
     [0, 1, 1],
     [1, 0, 0],
